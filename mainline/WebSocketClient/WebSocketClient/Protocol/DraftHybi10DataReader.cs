@@ -2,37 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.Common;
-using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
-using SuperWebSocket.Protocol.FramePartReader;
+using SuperSocket.ClientEngine;
+using SuperWebSocket.WebSocketClient.Protocol.FramePartReader;
 
-namespace SuperWebSocket.Protocol
+namespace SuperWebSocket.WebSocketClient.Protocol
 {
-    class WebSocketDataFrameReader : ICommandReader<WebSocketCommandInfo>
+    class DraftHybi10DataReader : IClientCommandReader<WebSocketCommandInfo>
     {
+        public DraftHybi10DataReader()
+        {
+            m_Frame = new WebSocketDataFrame(new ArraySegmentList());
+            m_PartReader = DataFramePartReader.NewReader;
+        }
+
         private List<WebSocketDataFrame> m_PreviousFrames;
         private WebSocketDataFrame m_Frame;
         private IDataFramePartReader m_PartReader;
         private int m_LastPartLength = 0;
-
-        public IAppServer AppServer { get; private set; }
 
         public int LeftBufferSize
         {
             get { return m_Frame.InnerData.Count; }
         }
 
-        public ICommandReader<WebSocketCommandInfo> NextCommandReader
+        public IClientCommandReader<WebSocketCommandInfo> NextCommandReader
         {
             get { return this; }
-        }
-
-        public WebSocketDataFrameReader(IAppServer appServer)
-        {
-            AppServer = appServer;
-            m_Frame = new WebSocketDataFrame(new ArraySegmentList());
-            m_PartReader = DataFramePartReader.NewReader;
         }
 
         protected void AddArraySegment(ArraySegmentList segments, byte[] buffer, int offset, int length, bool isReusableBuffer)
@@ -40,9 +35,9 @@ namespace SuperWebSocket.Protocol
             segments.AddSegment(buffer, offset, length, isReusableBuffer);
         }
 
-        public WebSocketCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public WebSocketCommandInfo GetCommandInfo(byte[] readBuffer, int offset, int length, out int left)
         {
-            this.AddArraySegment(m_Frame.InnerData, readBuffer, offset, length, isReusableBuffer);
+            this.AddArraySegment(m_Frame.InnerData, readBuffer, offset, length, true);
 
             IDataFramePartReader nextPartReader;
 
