@@ -8,7 +8,7 @@ using System.Configuration;
 
 namespace SuperWebSocketWeb
 {
-    public partial class LiveChat : System.Web.UI.Page
+    public partial class LiveChatWithBridge : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -26,19 +26,6 @@ namespace SuperWebSocketWeb
 
                 if (string.IsNullOrEmpty(extPort))
                     return Application["WebSocketPort"];
-                else
-                    return extPort;
-            }
-        }
-
-        protected object SecureWebSocketPort
-        {
-            get
-            {
-                var extPort = ConfigurationManager.AppSettings["extSecurePort"];
-
-                if (string.IsNullOrEmpty(extPort))
-                    return Application["SecureWebSocketPort"];
                 else
                     return extPort;
             }
